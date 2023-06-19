@@ -3,11 +3,14 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 
+const auth = require("./routes/auth");
 const prisma = new PrismaClient();
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+
+app.use("/api/auth", auth);
 
 app.get("/user", async (req: Request, res: Response, next: NextFunction) => {
   const allUsers = await prisma.user.findMany();
