@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
+import jwtValidate from "./middleware/jwtValidate";
 
 const auth = require("./routes/auth");
 const prisma = new PrismaClient();
@@ -16,6 +17,10 @@ app.get("/user", async (req: Request, res: Response, next: NextFunction) => {
   const allUsers = await prisma.user.findMany();
   console.log(allUsers);
   res.json({ user: allUsers });
+});
+
+app.get("/", jwtValidate, (req, res) => {
+  res.send("Hello World!");
 });
 
 // Start the server
