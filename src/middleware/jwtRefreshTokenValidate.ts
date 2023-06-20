@@ -1,16 +1,14 @@
 import jwt, { Secret } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
-const authenticateToken = (req: any, res: Response, next: NextFunction) => {
+const refreshTokenValidate = (req: any, res: Response, next: NextFunction) => {
   try {
-    if (!req.headers.authorization) {
-      return res.sendStatus(401);
-    }
+    if (!req.body.refreshtoken) return res.sendStatus(401);
 
-    const token = req.headers.authorization.replace("Bearer ", "");
+    const token = req.body.refreshtoken;
     jwt.verify(
       token,
-      process.env.ACCESS_TOKEN_SECRET as Secret,
+      process.env.REFRESH_TOKEN_SECRET as Secret,
       (err: any, decoded: any) => {
         if (err) {
           throw new Error(err.message);
@@ -21,8 +19,8 @@ const authenticateToken = (req: any, res: Response, next: NextFunction) => {
       }
     );
   } catch (error) {
-    return res.sendStatus(401);
+    return res.sendStatus(403);
   }
 };
 
-export default authenticateToken;
+export default refreshTokenValidate;

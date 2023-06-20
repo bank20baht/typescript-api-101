@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { Secret } from "jsonwebtoken";
 import { generateTokens } from "./generateTokens";
 import { PrismaClient } from "@prisma/client";
 import { User } from "@prisma/client";
@@ -78,5 +78,51 @@ const register = async (req: Request, res: Response) => {
     return res.status(500).send("Internal server error");
   }
 };
+const refreshToken = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.body;
+    const oldUser = await prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+    });
+    const oldRefreshToken = oldUser?.refreshtoken;
 
-export { login, register };
+    if (!oldRefreshToken) {
+      return res.sendStatus(401);
+    }
+
+    const isValidRefreshToken = jwt.verify(
+      String(oldRefreshToken),
+      process.env.REFRESH_TOKEN_SECRET as Secret
+    ) as jwt.JwtPayload;
+
+    if (!isValidRefreshToken) {
+      return res.sendStatus(401);
+    }
+
+    const newToken = generateTokens(oldUser);
+
+    await prisma.user.update({
+      where: {
+        id: oldUser?.id,
+      },
+      data: {
+        refreshtoken: newToken.refreshToken,
+      },
+    });
+
+    const user = {
+      username: oldUser?.username,
+      accesstoken: newToken.accessToken,
+      refreshtoken: newToken.refreshToken,
+    };
+
+    return res.status(201).json(user);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Internal server error");
+  }
+};
+
+export { login, register, refreshToken };
