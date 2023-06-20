@@ -1,18 +1,20 @@
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import jwt, { Secret } from "jsonwebtoken";
-import { generateTokens } from "./generateTokens";
-import { PrismaClient } from "@prisma/client";
-import { User } from "@prisma/client";
-const prisma = new PrismaClient();
+import { generateTokens } from "../utils/generateTokens";
+import db from "../utils/db";
 
-const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { username, password } = req.body;
     if (!(username && password)) {
       return res.status(400).send("All input is required");
     }
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
       where: {
         username: username,
       },
@@ -33,11 +35,11 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await db.user.findUnique({
       where: {
         username: username,
       },
@@ -48,7 +50,7 @@ const register = async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await prisma.user.create({
+    const newUser = await db.user.create({
       data: {
         username: username,
         password: hashedPassword,
@@ -57,7 +59,7 @@ const register = async (req: Request, res: Response) => {
 
     const tokens = generateTokens(newUser);
 
-    await prisma.user.update({
+    await db.user.update({
       where: {
         id: newUser.id,
       },
@@ -78,10 +80,10 @@ const register = async (req: Request, res: Response) => {
     return res.status(500).send("Internal server error");
   }
 };
-const refreshToken = async (req: Request, res: Response) => {
+export const refreshToken = async (req: Request, res: Response) => {
   try {
     const { username } = req.body;
-    const oldUser = await prisma.user.findUnique({
+    const oldUser = await db.user.findUnique({
       where: {
         username: username,
       },
@@ -103,7 +105,7 @@ const refreshToken = async (req: Request, res: Response) => {
 
     const newToken = generateTokens(oldUser);
 
-    await prisma.user.update({
+    await db.user.update({
       where: {
         id: oldUser?.id,
       },
@@ -124,5 +126,3 @@ const refreshToken = async (req: Request, res: Response) => {
     return res.status(500).send("Internal server error");
   }
 };
-
-export { login, register, refreshToken };

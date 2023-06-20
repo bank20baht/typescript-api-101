@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import jwtValidate from "./middleware/jwtValidate";
 
 const auth = require("./routes/auth");
+const posts = require("./routes/posts");
 const prisma = new PrismaClient();
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use("/api/auth", auth);
+app.use("/api/posts", posts);
 
 app.get("/user", async (req: Request, res: Response, next: NextFunction) => {
   const allUsers = await prisma.user.findMany();

@@ -1,4 +1,4 @@
-const { login, register, refreshToken } = require("../controllers/auth");
+import { register, login, refreshToken } from "../controllers/auth";
 const express = require("express");
 const router = express.Router();
 import jwtRefreshTokenValidate from "../middleware/jwtRefreshTokenValidate";
@@ -6,4 +6,5 @@ import jwtRefreshTokenValidate from "../middleware/jwtRefreshTokenValidate";
 router.post("/login", login);
 router.post("/register", register);
 router.post("/refresh", jwtRefreshTokenValidate, refreshToken);
+
 module.exports = router;
