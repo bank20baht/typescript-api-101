@@ -37,3 +37,25 @@ export const getAllPosts = async (
     res.status(500).send("Internal server error");
   }
 };
+
+export const getPostById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const post = await db.post.findUnique({
+      where: {
+        id: Number(req.params.id),
+      },
+    });
+    if (post) {
+      res.status(200).send(post);
+    } else {
+      res.status(404).send({ message: "Article not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal server error");
+  }
+};
