@@ -60,8 +60,14 @@ export const getPostById = async (
   }
 };
 
+interface AuthenticatedRequest extends Request {
+  user: {
+    username: string;
+  };
+}
+
 export const updatePost = async (
-  req: any,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -104,7 +110,7 @@ export const updatePost = async (
 };
 
 export const deletePost = async (
-  req: any,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
