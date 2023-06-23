@@ -80,9 +80,11 @@ export const register = async (req: Request, res: Response) => {
     return res.status(500).send("Internal server error");
   }
 };
+
 export const refreshToken = async (req: Request, res: Response) => {
   try {
     const { username } = req.body;
+    let newToken;
     const oldUser = await db.user.findUnique({
       where: {
         username: username,
@@ -90,7 +92,7 @@ export const refreshToken = async (req: Request, res: Response) => {
     });
     const oldRefreshToken = oldUser?.refreshtoken;
 
-    if (!oldRefreshToken) {
+    if (oldRefreshToken !== req.body.refreshtoken) {
       return res.sendStatus(401);
     }
 
@@ -102,22 +104,24 @@ export const refreshToken = async (req: Request, res: Response) => {
     if (!isValidRefreshToken) {
       return res.sendStatus(401);
     }
-
-    const newToken = generateTokens(oldUser);
+    if (oldUser) {
+      const token = generateTokens(oldUser);
+      newToken = token;
+    }
 
     await db.user.update({
       where: {
         id: oldUser?.id,
       },
       data: {
-        refreshtoken: newToken.refreshToken,
+        refreshtoken: newToken?.refreshToken,
       },
     });
 
     const user = {
       username: oldUser?.username,
-      accesstoken: newToken.accessToken,
-      refreshtoken: newToken.refreshToken,
+      accesstoken: newToken?.accessToken,
+      refreshtoken: newToken?.refreshToken,
     };
 
     return res.status(201).json(user);
