@@ -1,8 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import db from "../utils/db";
 
+interface AuthenticatedRequest extends Request {
+  user: {
+    username: string;
+  };
+}
+
 export const createPost = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -59,12 +65,6 @@ export const getPostById = async (
     res.status(500).send("Internal server error");
   }
 };
-
-interface AuthenticatedRequest extends Request {
-  user: {
-    username: string;
-  };
-}
 
 export const updatePost = async (
   req: AuthenticatedRequest,
