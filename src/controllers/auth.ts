@@ -98,13 +98,16 @@ export const refreshToken = async (
     let newToken;
     const oldUser = await db.user.findUnique({
       where: {
-        username: username,
+        username: req.user.username,
       },
     });
     const oldRefreshToken = oldUser?.refreshtoken;
-    console.log("orefresh token = " + oldRefreshToken);
-    console.log("rrefresh token = " + oldRefreshToken);
+    const refreshTokenFromBody = req.body.refreshtoken;
 
+    // Check if refresh token in the request body matches the one in the database
+    console.log("Old Refresh Token = " + oldRefreshToken);
+
+    // Verify the validity of the refresh token
     const isValidRefreshToken = jwt.verify(
       String(oldRefreshToken),
       process.env.REFRESH_TOKEN_SECRET as Secret
@@ -113,11 +116,13 @@ export const refreshToken = async (
     if (!isValidRefreshToken) {
       return res.sendStatus(401);
     }
+
     if (oldUser) {
       const token = generateTokens(oldUser);
       newToken = token;
     }
-    console.log("nrefresh token = " + newToken?.refreshToken);
+
+    console.log("New Refresh Token = " + newToken?.refreshToken);
 
     await db.user.update({
       where: {
