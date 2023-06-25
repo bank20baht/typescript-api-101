@@ -14,6 +14,8 @@ const refreshTokenValidate = (req: any, res: Response, next: NextFunction) => {
           throw new Error(err.message);
         } else {
           req.user = decoded;
+          delete req.user.exp;
+          delete req.user.iat;
           next();
         }
       }

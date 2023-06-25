@@ -9,7 +9,7 @@ export function generateTokens(user: tokenInfomation) {
   const accessToken = jwt.sign(
     { username: username },
     process.env.ACCESS_TOKEN_SECRET as string,
-    { expiresIn: "3m", algorithm: "HS256" }
+    { expiresIn: "2m", algorithm: "HS256" }
   );
   const refreshToken = jwt.sign(
     { username: username },

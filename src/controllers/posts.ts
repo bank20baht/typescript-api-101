@@ -4,6 +4,8 @@ import db from "../utils/db";
 interface AuthenticatedRequest extends Request {
   user: {
     username: string;
+    iat: number;
+    exp: number;
   };
 }
 
@@ -13,6 +15,7 @@ export const createPost = async (
   next: NextFunction
 ) => {
   try {
+    console.log(req.user);
     const { title, content, author } = req.body;
     const post = await db.post.create({
       data: {

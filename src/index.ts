@@ -15,16 +15,6 @@ app.use(bodyParser.json());
 app.use("/api/auth", auth);
 app.use("/api/posts", posts);
 
-app.get("/user", async (req: Request, res: Response, next: NextFunction) => {
-  const allUsers = await prisma.user.findMany();
-  console.log(allUsers);
-  res.json({ user: allUsers });
-});
-
-app.get("/", jwtValidate, (req, res) => {
-  res.send("Hello World!");
-});
-
 // Start the server
 const port = 8000;
 app.listen(port, () => {

@@ -23,7 +23,6 @@ export const login = async (
       const tokens = generateTokens(user);
       return res.status(200).json({
         name: user.username,
-        password: user.password,
         accesstoken: tokens.accessToken,
         refreshtoken: tokens.refreshToken,
       });
@@ -81,9 +80,21 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const refreshToken = async (req: Request, res: Response) => {
+interface AuthenticatedRequest extends Request {
+  user: {
+    username: string;
+    iat: number;
+    exp: number;
+  };
+}
+
+export const refreshToken = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
   try {
-    const { username } = req.body;
+    console.log("refresh token work");
+    const username = req.user.username;
     let newToken;
     const oldUser = await db.user.findUnique({
       where: {
@@ -91,10 +102,8 @@ export const refreshToken = async (req: Request, res: Response) => {
       },
     });
     const oldRefreshToken = oldUser?.refreshtoken;
-
-    if (oldRefreshToken !== req.body.refreshtoken) {
-      return res.sendStatus(401);
-    }
+    console.log("orefresh token = " + oldRefreshToken);
+    console.log("rrefresh token = " + oldRefreshToken);
 
     const isValidRefreshToken = jwt.verify(
       String(oldRefreshToken),
@@ -108,6 +117,7 @@ export const refreshToken = async (req: Request, res: Response) => {
       const token = generateTokens(oldUser);
       newToken = token;
     }
+    console.log("nrefresh token = " + newToken?.refreshToken);
 
     await db.user.update({
       where: {

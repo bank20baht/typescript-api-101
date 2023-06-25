@@ -1,7 +1,19 @@
 import jwt, { Secret } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
-const authenticateToken = (req: any, res: Response, next: NextFunction) => {
+interface AuthenticatedRequest extends Request {
+  user: {
+    username: string;
+    iat: number;
+    exp: number;
+  };
+}
+
+const authenticateToken = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     if (!req.headers.authorization) {
       return res.sendStatus(401);
