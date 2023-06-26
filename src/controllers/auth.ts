@@ -21,6 +21,14 @@ export const login = async (
     });
     if (user && (await bcrypt.compare(password, user.password))) {
       const tokens = generateTokens(user);
+      await db.user.update({
+        where: {
+          username: username,
+        },
+        data: {
+          refreshtoken: tokens.refreshToken,
+        },
+      });
       return res.status(200).json({
         name: user.username,
         accesstoken: tokens.accessToken,
@@ -81,6 +89,9 @@ export const register = async (req: Request, res: Response) => {
 };
 
 interface AuthenticatedRequest extends Request {
+  body: {
+    refreshtoken: string;
+  };
   user: {
     username: string;
     iat: number;
@@ -106,7 +117,11 @@ export const refreshToken = async (
 
     // Check if refresh token in the request body matches the one in the database
     console.log("Old Refresh Token = " + oldRefreshToken);
-
+    console.log("refresh token from request = " + refreshTokenFromBody);
+    if (oldRefreshToken?.toString() !== refreshTokenFromBody.toString()) {
+      console.log("not same refreshtoken");
+      return res.sendStatus(401);
+    }
     // Verify the validity of the refresh token
     const isValidRefreshToken = jwt.verify(
       String(oldRefreshToken),
