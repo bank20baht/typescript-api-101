@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import jwtValidate from "./middleware/jwtValidate";
 import path from "path";
 import multer from "multer";
+import upload from "./routes/upload";
 const auth = require("./routes/auth");
 const posts = require("./routes/posts");
 
@@ -18,6 +19,7 @@ app.use("/public", express.static(path.resolve(__dirname, "../public")));
 
 app.use("/api/auth", auth);
 app.use("/api/posts", posts);
+app.use("/api", upload);
 
 // Start the server
 const port = 8000;
