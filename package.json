@@ -10,6 +10,7 @@
   "author": "Nattapong Promthong",
   "license": "ISC",
   "devDependencies": {
+    "@types/multer": "^1.4.7",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.1.3"
@@ -27,6 +28,8 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1",
+    "path": "^0.12.7",
     "pg": "^8.11.0",
     "prisma": "^4.15.0"
   }
