@@ -6,12 +6,14 @@ import {
   deletePost,
 } from "../controllers/posts";
 import authenticateToken from "../middleware/jwtValidate";
+import { uploadMiddleware } from "../middleware/upload";
+
 const express = require("express");
 const router = express.Router();
 
-router.get("/", authenticateToken, getAllPosts);
+router.get("/", getAllPosts);
 router.get("/:id", getPostById);
-router.post("/", authenticateToken, createPost);
+router.post("/", uploadMiddleware, createPost);
 router.put("/edit/:id", authenticateToken, updatePost);
 router.delete("/delete/:id", authenticateToken, deletePost);
 module.exports = router;

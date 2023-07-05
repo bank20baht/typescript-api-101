@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    hostname: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: helpdesk
+    volumes:
+      - postgres-data3:/var/lib/postgresql/data
+    restart: unless-stopped
+  backend:
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ReplyAPI
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    restart: always
+
+volumes:
+  postgres-data3:

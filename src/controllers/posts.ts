@@ -10,16 +10,18 @@ interface AuthenticatedRequest extends Request {
 }
 
 export const createPost = async (
-  req: AuthenticatedRequest,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   try {
     console.log(req.user);
-    const { title, content, author } = req.body;
+    const { filename } = req.file;
+    console.log("createPost endpoint = " + filename);
+    const { content, author } = req.body;
     const post = await db.post.create({
       data: {
-        title,
+        image: `http://localhost:8000/public/${filename}`,
         content,
         author: {
           connect: { username: author },
@@ -39,8 +41,16 @@ export const getAllPosts = async (
   next: NextFunction
 ) => {
   try {
-    const allPost = await db.post.findMany();
-    res.status(200).send(allPost);
+    const allPosts = await db.post.findMany({
+      include: {
+        author: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+    res.status(200).send(allPosts);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal server error");
@@ -94,7 +104,6 @@ export const updatePost = async (
           id: Number(req.params.id),
         },
         data: {
-          title: title,
           content: content,
         },
       });

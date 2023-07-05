@@ -1,20 +1,9 @@
 import express, { Router, Request, Response } from "express";
 import { upload_img } from "../controllers/upload";
-import multer from "multer";
+import { uploadMiddleware } from "../middleware/upload";
 
 const router: Router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: function (req, file, callback) {
-    callback(null, "./public");
-  },
-  filename: function (req, file, callback) {
-    callback(null, file.originalname);
-  },
-});
+router.post("/upload", uploadMiddleware, upload_img);
 
-const upload = multer({ storage });
-
-router.post("/upload", upload.single("photo"), upload_img);
-
-export = router;
+export default router;
